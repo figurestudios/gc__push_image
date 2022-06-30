@@ -1,5 +1,9 @@
 import siaskynet as skynet
 import argparse
+import os
+import time
+
+gvmi = None
 
 parser = argparse.ArgumentParser()
 
@@ -12,8 +16,25 @@ parser.add_argument('-t', '--token', type=str) # you need to obtain this manuall
 
 args = parser.parse_args()
 
+if args.file == None:
+    gvmis = []
+    files = os.listdir(os.curdir)
+    mtime = 0
+    for file in files:
+        if file.endswith('.gvmi'):
+            gvmis.append(file)
+            if (os.path.getmtime(file) > mtime):
+                mtime = os.path.getmtime(file)
+                gvmi = file
+    if (str(input("Do you want continue with this file: " + gvmi + " Y / N")).upper() == "Y"):
+        pass
+    else:
+        quit()
+else:
+    gvmi = args.file
+
 print("portal", args.portal)
-print("file", args.file)
+print("file", gvmi)
 print("token", args.token)
 
 # public portals, required unless a token is specified
@@ -26,7 +47,7 @@ client = skynet.SkynetClient(args.portal, {"skynet_api_key": args.token})
 
 print("uploading file")
 
-skylink = client.upload_file(args.file)
+skylink = client.upload_file(gvmi)
 
 for portal in portals:
     print('image_url="' + portal + skylink[6:] + '",')
